@@ -59,7 +59,21 @@ const launchVlc = (source) => {
   vlcProcess.on('exit', () => { vlcProcess = undefined })
 }
 
-const contentType = (file) => extname(file) === '.m3u8' ? 'application/vnd.apple.mpegurl' : 'video/mp2t'
+const waitForPlaylist = async (timeoutMs = 5000) => {
+  const startedAt = Date.now()
+  while (!existsSync(playlistPath) && Date.now() - startedAt < timeoutMs) {
+    await new Promise((resolve) => setTimeout(resolve, 100))
+  }
+  return existsSync(playlistPath)
+}
+
+const contentType = (file) => {
+  const extension = extname(file).toLowerCase()
+  if (extension === '.m3u8') return 'application/vnd.apple.mpegurl'
+  if (extension === '.mp4') return 'video/mp4'
+  if (extension === '.webm') return 'video/webm'
+  return 'video/mp2t'
+}
 
 createServer(async (request, response) => {
   const url = new URL(request.url, `http://${request.headers.host}`)
@@ -71,9 +85,53 @@ createServer(async (request, response) => {
       const input = await body(request)
       const source = resolveSource(String(input.source ?? ''))
       launchVlc(source)
+      if (!await waitForPlaylist()) throw new Error('VLC did not create a playback stream')
       send(response, 202, { stream: `/stream/index.m3u8` })
     } catch (error) {
       send(response, 400, { error: error instanceof Error ? error.message : 'Unable to start VLC' })
+    }
+    return
+  }
+  if (url.pathname === '/api/vlc/file' && request.method === 'GET') {
+    try {
+      const file = resolveSource(url.searchParams.get('source') ?? '')
+      response.writeHead(200, { ...headers(contentType(file)), 'Content-Length': statSync(file).size })
+      createReadStream(file).pipe(response)
+    } catch (error) {
+      send(response, 400, { error: error instanceof Error ? error.message : 'Unable to read video file' })
+    }
+    return
+  }
+  if (url.pathname === '/api/vlc/proxy' && request.method === 'GET') {
+    try {
+      const source = url.searchParams.get('source') ?? ''
+      if (!/^https?:\/\//i.test(source)) throw new Error('Proxy source must be an http(s) URL')
+      const range = request.headers.range
+      const requestOptions = range ? { headers: { Range: range } } : undefined
+      let upstream = await fetch(source, requestOptions)
+      if ((upstream.headers.get('content-type') ?? '').includes('text/html')) {
+        const warning = await upstream.text()
+        const uuid = warning.match(/name="uuid" value="([^"]+)"/)?.[1]
+        const id = warning.match(/name="id" value="([^"]+)"/)?.[1]
+        if (!uuid || !id) throw new Error('Google Drive did not provide a playable video download')
+        const confirmed = new URL('https://drive.usercontent.google.com/download')
+        confirmed.searchParams.set('id', id)
+        confirmed.searchParams.set('export', 'download')
+        confirmed.searchParams.set('confirm', 't')
+        confirmed.searchParams.set('uuid', uuid)
+        upstream = await fetch(confirmed, requestOptions)
+      }
+      if (!upstream.ok || !upstream.body) throw new Error(`Remote video request failed: ${upstream.status}`)
+      const responseHeaders = { ...headers(upstream.headers.get('content-type') ?? 'video/mp4') }
+      for (const name of ['content-length', 'content-range', 'accept-ranges']) {
+        const value = upstream.headers.get(name)
+        if (value) responseHeaders[name] = value
+      }
+      response.writeHead(upstream.status, responseHeaders)
+      for await (const chunk of upstream.body) response.write(chunk)
+      response.end()
+    } catch (error) {
+      send(response, 502, { error: error instanceof Error ? error.message : 'Unable to proxy video' })
     }
     return
   }

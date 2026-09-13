@@ -4,3 +4,20 @@
 @media(max-width:720px){.sidebar{width:58px;padding:18px 7px}.brand{padding:0;justify-content:center;margin-bottom:30px}.brand>span:last-child,.nav-item span,.nav-label,.sidebar-foot span,.sidebar-foot button{display:none}.nav-item{justify-content:center;padding:10px 0}.nav-item b{display:none}.sidebar-foot{padding:15px 0 0;justify-content:center}.main-content{margin-left:58px;padding:0 12px}.topbar{height:58px;gap:7px}.breadcrumb{display:none}.search-box{max-width:120px;margin-left:0}.search-box input{font-size:9px}.search-box kbd{display:none}.load-local{font-size:0;padding:0 8px}.load-local svg{margin:0}.hero{height:330px}.hero-content{padding:42px 24px}.hero h1{font-size:32px}.hero-actions{flex-wrap:wrap}.quick-grid{grid-template-columns:repeat(2,1fr)}.continue-row{display:flex;overflow:auto;margin-right:-12px;padding-right:12px}.continue-card{min-width:230px}.media-grid{grid-template-columns:repeat(2,1fr);gap:10px}.section-tabs{display:none}.player-bar{height:57px;padding:0 10px}.now-playing{width:55%}.now-playing>button,.player-tools{display:none}.player-controls{width:45%}.transport{gap:12px}}
 .hero-drive{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:-2}.hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,13,24,.94),rgba(8,13,24,.55) 42%,rgba(8,13,24,.08) 78%),linear-gradient(0deg,rgba(8,13,24,.7),transparent 60%);z-index:-1}
 .video-back{position:absolute;left:22px;top:22px;z-index:1;height:28px;padding:0 10px;border-radius:4px;background:rgba(17,15,20,.9);border:1px solid #40536b;color:#d9e6f4;font-size:10px}.video-back:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Single-screen drive-in launcher */
+.app-shell{min-height:100vh;padding:0}
+.main-content{margin-left:0;padding:0;min-height:100vh}
+.topbar{position:absolute;top:0;left:0;right:0;z-index:2;height:76px;justify-content:center;background:linear-gradient(180deg,rgba(4,8,15,.7),transparent);border:0}
+.topbar strong{color:#f5f7fb;font-size:13px;letter-spacing:2px}
+.topbar .brand-mark{display:none}
+.topbar .load-local{position:absolute;right:28px;top:23px}
+.hero{height:100vh;min-height:560px;margin:0;border-radius:0;display:grid;place-items:center;text-align:center;overflow:hidden}
+.hero-drive{object-fit:cover;z-index:-2}
+.hero-shade{background:linear-gradient(90deg,rgba(8,13,24,.5),rgba(8,13,24,.2) 50%,rgba(8,13,24,.5)),linear-gradient(0deg,rgba(8,13,24,.68),rgba(8,13,24,.16) 65%,rgba(8,13,24,.6))}
+.hero-content{max-width:720px;padding:90px 28px 40px;align-items:center}
+.hero h1{font-size:clamp(42px,7vw,78px);text-shadow:0 4px 24px rgba(0,0,0,.45)}
+.hero-description{max-width:460px}
+.hero-actions{justify-content:center}
+.hero-index{display:none}
+@media(max-width:720px){.topbar{height:68px}.topbar .load-local{right:16px;top:19px}.hero{min-height:100vh}.hero-content{padding:84px 20px 28px}.hero h1{font-size:42px}}
