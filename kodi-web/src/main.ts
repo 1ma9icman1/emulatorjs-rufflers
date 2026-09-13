@@ -80,12 +80,13 @@ playDrive.innerHTML = `${icon('play')} Load online`
 drivePlayer.style.width = '100%'
 drivePlayer.style.height = '72vh'
 drivePlayer.style.border = '0'
-const toolbarLoadOnline = document.createElement('button')
+const toolbarLoadOnline = document.createElement('a')
 toolbarLoadOnline.className = 'load-local'
-toolbarLoadOnline.type = 'button'
+toolbarLoadOnline.href = 'https://drive.google.com/file/d/1mHolwVL7b3ndLrGn1dmDjrOIG7d3JgDo/view?usp=sharing'
+toolbarLoadOnline.target = '_blank'
+toolbarLoadOnline.rel = 'noopener noreferrer'
 toolbarLoadOnline.textContent = 'Load online'
 loadLocal.insertAdjacentElement('afterend', toolbarLoadOnline)
-toolbarLoadOnline.addEventListener('click', () => playDrive.click())
 
 const enableVideoAudio = () => {
   videoPlayer.muted = false
