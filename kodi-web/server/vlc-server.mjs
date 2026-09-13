@@ -158,4 +158,4 @@ createServer(async (request, response) => {
     }
   }
   send(response, 404, { error: 'Not found' })
-}).listen(port, '127.0.0.1', () => console.log(`VLC web bridge listening on http://127.0.0.1:${port}`))
+}).listen(port, '0.0.0.0', () => console.log(`VLC web bridge listening on http://0.0.0.0:${port}`))
