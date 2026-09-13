@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+﻿#!/bin/sh
 set -e
 
 echo "=== RomM Station Initializing ==="
@@ -7,14 +7,24 @@ echo "=== RomM Station Initializing ==="
 if [ -z "$DB_HOST" ] || [ "$DB_HOST" = "127.0.0.1" ] || [ "$DB_HOST" = "localhost" ]; then
     echo "[RomM Self-Contained] Starting embedded MariaDB database engine..."
     
-    # Initialize data dir if empty
+    mkdir -p /var/lib/mysql /run/mysqld
+    chown -R mysql:mysql /var/lib/mysql /run/mysqld 2>/dev/null || true
+    
     if [ ! -d "/var/lib/mysql/mysql" ]; then
-        mysql_install_db --user=mysql --datadir=/var/lib/mysql > /dev/null 2>&1 || true
+        echo "[RomM Self-Contained] Initializing database files..."
+        mariadb-install-db --user=mysql --datadir=/var/lib/mysql >/dev/null 2>&1 || mysql_install_db --user=mysql --datadir=/var/lib/mysql >/dev/null 2>&1 || true
     fi
     
-    # Start MariaDB service
-    service mariadb start || /etc/init.d/mariadb start || mysqld_safe &
-    sleep 3
+    # Launch mysqld daemon in background
+    mysqld --user=mysql --datadir=/var/lib/mysql --skip-networking=0 --bind-address=0.0.0.0 &
+    
+    # Wait for mysqld socket to be ready
+    for i in $(seq 1 30); do
+        if mysqladmin ping --silent 2>/dev/null; then
+            break
+        fi
+        sleep 1
+    done
     
     export ROMM_DB_DRIVER=mariadb
     export DB_HOST=127.0.0.1
@@ -23,8 +33,8 @@ if [ -z "$DB_HOST" ] || [ "$DB_HOST" = "127.0.0.1" ] || [ "$DB_HOST" = "localhos
     export DB_USER=romm
     export DB_PASSWD=rommpassword
     
-    # Create database & grant user
-    mysql -u root -e "CREATE DATABASE IF NOT EXISTS romm; CREATE USER IF NOT EXISTS 'romm'@'127.0.0.1' IDENTIFIED BY 'rommpassword'; CREATE USER IF NOT EXISTS 'romm'@'localhost' IDENTIFIED BY 'rommpassword'; GRANT ALL PRIVILEGES ON romm.* TO 'romm'@'127.0.0.1'; GRANT ALL PRIVILEGES ON romm.* TO 'romm'@'localhost'; FLUSH PRIVILEGES;" 2>/dev/null || true
+    # Create database & user if not exists
+    mariadb -u root -e "CREATE DATABASE IF NOT EXISTS romm; CREATE USER IF NOT EXISTS 'romm'@'%' IDENTIFIED BY 'rommpassword'; GRANT ALL PRIVILEGES ON romm.* TO 'romm'@'%'; FLUSH PRIVILEGES;" 2>/dev/null || mysql -u root -e "CREATE DATABASE IF NOT EXISTS romm; CREATE USER IF NOT EXISTS 'romm'@'%' IDENTIFIED BY 'rommpassword'; GRANT ALL PRIVILEGES ON romm.* TO 'romm'@'%'; FLUSH PRIVILEGES;" 2>/dev/null || true
     echo "[RomM Self-Contained] Embedded MariaDB is ready."
 fi
 

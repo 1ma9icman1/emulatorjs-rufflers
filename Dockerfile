@@ -4,11 +4,8 @@ FROM rommapp/romm:latest
 
 USER root
 
-# Install embedded MariaDB server for standalone zero-config cloud deployments
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    mariadb-server \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Install embedded MariaDB on Alpine Linux for standalone zero-config cloud deployments
+RUN apk add --no-cache mariadb mariadb-client mariadb-server-utils
 
 ENV PORT=8080
 ENV HASHEOUS_API_ENABLED=true
