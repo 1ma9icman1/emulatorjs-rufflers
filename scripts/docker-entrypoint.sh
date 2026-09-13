@@ -33,8 +33,21 @@ if [ -z "$DB_HOST" ] || [ "$DB_HOST" = "127.0.0.1" ] || [ "$DB_HOST" = "localhos
     export DB_USER=romm
     export DB_PASSWD=rommpassword
     
-    # Create database & user if not exists
-    mariadb -u root -e "CREATE DATABASE IF NOT EXISTS romm; CREATE USER IF NOT EXISTS 'romm'@'%' IDENTIFIED BY 'rommpassword'; GRANT ALL PRIVILEGES ON romm.* TO 'romm'@'%'; FLUSH PRIVILEGES;" 2>/dev/null || mysql -u root -e "CREATE DATABASE IF NOT EXISTS romm; CREATE USER IF NOT EXISTS 'romm'@'%' IDENTIFIED BY 'rommpassword'; GRANT ALL PRIVILEGES ON romm.* TO 'romm'@'%'; FLUSH PRIVILEGES;" 2>/dev/null || true
+    # Create database & grant user across localhost, 127.0.0.1, and %
+    mariadb -u root << 'EOSQL' 2>/dev/null || mysql -u root << 'EOSQL' 2>/dev/null || true
+CREATE DATABASE IF NOT EXISTS romm;
+CREATE USER IF NOT EXISTS 'romm'@'localhost' IDENTIFIED BY 'rommpassword';
+ALTER USER 'romm'@'localhost' IDENTIFIED BY 'rommpassword';
+CREATE USER IF NOT EXISTS 'romm'@'127.0.0.1' IDENTIFIED BY 'rommpassword';
+ALTER USER 'romm'@'127.0.0.1' IDENTIFIED BY 'rommpassword';
+CREATE USER IF NOT EXISTS 'romm'@'%' IDENTIFIED BY 'rommpassword';
+ALTER USER 'romm'@'%' IDENTIFIED BY 'rommpassword';
+GRANT ALL PRIVILEGES ON *.* TO 'romm'@'localhost' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'romm'@'127.0.0.1' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'romm'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+EOSQL
+
     echo "[RomM Self-Contained] Embedded MariaDB is ready."
 fi
 
