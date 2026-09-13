@@ -1,24 +1,13 @@
-﻿# Multi-stage build for Video Game Emulator
-FROM node:20-alpine AS builder
-WORKDIR /app
+﻿# romM - ROM Manager & Web Emulator Station
+# Built off official rommapp/romm
+FROM rommapp/romm:latest
 
-COPY Video-Game-Emulator/package*.json ./
-RUN npm install
+ENV PORT=8080
+ENV HASHEOUS_API_ENABLED=true
+ENV SCAN_WORKERS=4
+ENV WEB_SERVER_CONCURRENCY=4
 
-COPY Video-Game-Emulator/ ./
-RUN npm run build
+# Pre-load RomM configurations for NES & SNES Emulation
+COPY config/config.yml /romm/config/config.yml
 
-FROM node:20-alpine AS runner
-WORKDIR /app
-
-ENV NODE_ENV=production
-ENV PORT=3000
-
-COPY Video-Game-Emulator/package*.json ./
-RUN npm install --omit=dev
-
-COPY --from=builder /app/dist ./dist
-
-EXPOSE 3000
-
-CMD ["node", "dist/server.cjs"]
+EXPOSE 8080

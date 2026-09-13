@@ -1,4 +1,4 @@
-﻿name: romm-station
+﻿name: romM
 
 volumes:
   mysql_data:
@@ -13,8 +13,8 @@ services:
     env_file: .env
     environment:
       - DB_HOST=romm-db
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
+      - DB_NAME=${DB_NAME:-romm}
+      - DB_USER=${DB_USER:-romm-user}
       - DB_PASSWD=${DB_PASSWD}
       - ROMM_AUTH_SECRET_KEY=${ROMM_AUTH_SECRET_KEY}
       - HASHEOUS_API_ENABLED=${HASHEOUS_API_ENABLED:-true}
@@ -40,8 +40,8 @@ services:
     env_file: .env
     environment:
       - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWD}
-      - MARIADB_DATABASE=${DB_NAME}
-      - MARIADB_USER=${DB_USER}
+      - MARIADB_DATABASE=${DB_NAME:-romm}
+      - MARIADB_USER=${DB_USER:-romm-user}
       - MARIADB_PASSWORD=${DB_PASSWD}
     volumes:
       - mysql_data:/var/lib/mysql
