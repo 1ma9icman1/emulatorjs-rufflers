@@ -14,9 +14,9 @@
 .topbar .brand-mark{display:none}
 .topbar .load-local{position:absolute;right:28px;top:23px}
 .hero{height:100vh;min-height:560px;margin:0;border-radius:0;display:grid;place-items:center;text-align:center;overflow:hidden}
-.hero-drive{object-fit:cover;z-index:-2}
+.hero-drive{object-fit:cover;z-index:0}
 .hero-shade{background:linear-gradient(90deg,rgba(8,13,24,.5),rgba(8,13,24,.2) 50%,rgba(8,13,24,.5)),linear-gradient(0deg,rgba(8,13,24,.68),rgba(8,13,24,.16) 65%,rgba(8,13,24,.6))}
-.hero-content{max-width:720px;padding:90px 28px 40px;align-items:center}
+.hero-content{width:min(720px,90vw);max-width:720px;margin:0 auto;padding:90px 28px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .hero h1{font-size:clamp(42px,7vw,78px);text-shadow:0 4px 24px rgba(0,0,0,.45)}
 .hero-description{max-width:460px}
 .hero-actions{justify-content:center}
