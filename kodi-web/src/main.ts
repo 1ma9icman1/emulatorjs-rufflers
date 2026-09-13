@@ -64,7 +64,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `<div class="app-she
     <section class="content-section library-section"><div class="section-heading"><div><span class="section-kicker">Recently added</span><h2>From your library</h2></div><div class="section-tabs"><button class="tab active">All</button><button class="tab">Movies</button><button class="tab">Shows</button></div></div><div class="media-grid">${media.map(card).join('')}</div></section>
   </main>
   <footer class="player-bar"><div class="now-playing"><div class="album-art"><img src="${media[5].image}" alt="Nocturne Radio"></div><div><strong id="track-title">Midnight City</strong><span>M83  •  Hurry Up, We're Dreaming</span></div><button aria-label="Like track">${icon('heart')}</button></div><div class="player-controls"><div class="transport"><button aria-label="Previous">◀◀</button><button class="main-play" id="player-toggle" aria-label="Pause">Ⅱ</button><button aria-label="Next">▶▶</button></div><div class="track-progress"><span>1:24</span><div><i></i></div><span>4:03</span></div></div><div class="player-tools">${icon('volume')}<div class="volume-line"><i></i></div>${icon('more')}</div></footer>
-  <dialog id="video-dialog"><div class="video-shell"><button class="video-close" id="close-video" aria-label="Close video">×</button><video id="video-player" controls playsinline></video><iframe id="drive-player" title="Google Drive video" allow="autoplay; fullscreen" allowfullscreen hidden></iframe><p id="video-status">Preparing VLC playback...</p></div></dialog>
+  <dialog id="video-dialog"><div class="video-shell"><button class="video-back" id="back-video" type="button">← Back</button><button class="video-close" id="close-video" aria-label="Close video">×</button><video id="video-player" controls playsinline></video><iframe id="drive-player" title="Google Drive video" allow="autoplay; fullscreen" allowfullscreen hidden></iframe><p id="video-status">Preparing VLC playback...</p></div></dialog>
 </div>`
 
 const search = document.querySelector<HTMLInputElement>('#search')!
@@ -77,6 +77,7 @@ const videoDialog = document.querySelector<HTMLDialogElement>('#video-dialog')!
 const videoPlayer = document.querySelector<HTMLVideoElement>('#video-player')!
 const drivePlayer = document.querySelector<HTMLIFrameElement>('#drive-player')!
 const videoStatus = document.querySelector<HTMLParagraphElement>('#video-status')!
+const backVideo = document.querySelector<HTMLButtonElement>('#back-video')!
 const localFileInput = document.querySelector<HTMLInputElement>('#local-file')!
 const loadLocal = document.querySelector<HTMLButtonElement>('#load-local')!
 let hls: Hls | undefined
@@ -154,7 +155,9 @@ watchFeatured.addEventListener('click', () => {
   if (services.featuredVideo) void openVideo(services.featuredVideo)
   else { videoDialog.showModal(); videoStatus.textContent = 'Set VITE_FEATURED_VIDEO to a file inside VIDEO_ROOT or an approved stream.' }
 })
-document.querySelector<HTMLButtonElement>('#close-video')!.addEventListener('click', () => { hls?.destroy(); videoPlayer.pause(); videoPlayer.removeAttribute('src'); videoPlayer.hidden = false; drivePlayer.hidden = true; drivePlayer.src = ''; videoDialog.close() })
+const closeVideo = () => { hls?.destroy(); videoPlayer.pause(); videoPlayer.removeAttribute('src'); videoPlayer.hidden = false; drivePlayer.hidden = true; drivePlayer.src = ''; videoDialog.close() }
+document.querySelector<HTMLButtonElement>('#close-video')!.addEventListener('click', closeVideo)
+backVideo.addEventListener('click', closeVideo)
 playDrive.addEventListener('click', () => {
   const entered = window.prompt('Which Google Drive video should I play? Paste its sharing URL or file ID.', googleDrivePreview)
   if (!entered) return
