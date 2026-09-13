@@ -1,0 +1,13 @@
+﻿node_modules
+Video-Game-Emulator/node_modules
+.git
+.vscode
+*.zip
+*.rar
+*.part*.rar
+*.7z
+*.mp4
+ROMS
+roms-snes
+library
+Nintendo*
