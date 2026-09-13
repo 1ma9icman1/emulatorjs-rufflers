@@ -80,6 +80,12 @@ playDrive.innerHTML = `${icon('play')} Load online`
 drivePlayer.style.width = '100%'
 drivePlayer.style.height = '72vh'
 drivePlayer.style.border = '0'
+const toolbarLoadOnline = document.createElement('button')
+toolbarLoadOnline.className = 'load-local'
+toolbarLoadOnline.type = 'button'
+toolbarLoadOnline.textContent = 'Load online'
+loadLocal.insertAdjacentElement('afterend', toolbarLoadOnline)
+toolbarLoadOnline.addEventListener('click', () => playDrive.click())
 
 document.querySelectorAll<HTMLButtonElement>('.nav-item').forEach((button) => button.addEventListener('click', () => {
   document.querySelectorAll('.nav-item').forEach((item) => item.classList.remove('active'))
