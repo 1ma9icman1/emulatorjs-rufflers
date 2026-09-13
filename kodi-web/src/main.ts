@@ -20,7 +20,7 @@ const icon = (name: string) => {
 
 const neonDriveInImage = '/2026-09-13%2017_40_21-Roblox.png'
 const googleDriveVideo = 'https://drive.google.com/uc?export=download&id=1FDjrUOgEn57U4cBSpwDtmamoFNBaa1rf'
-const featuredVideoSource = services.featuredVideo || `${services.vlcUrl}/api/vlc/proxy?source=${encodeURIComponent(googleDriveVideo)}`
+const featuredVideoSource = services.featuredVideo || googleDriveVideo
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `<div class="app-shell">
   <main class="main-content">
@@ -75,7 +75,10 @@ const openVideo = async (source: string) => {
       videoSound.hidden = true
       return
     }
-    const streamUrl = await startVlcPlayback(source)
+    const streamSource = source === googleDriveVideo
+      ? `${services.vlcUrl}/api/vlc/proxy?source=${encodeURIComponent(source)}`
+      : source
+    const streamUrl = await startVlcPlayback(streamSource)
     if (Hls.isSupported()) {
       hls?.destroy()
       hls = new Hls({ enableWorker: true, startPosition: -1 })

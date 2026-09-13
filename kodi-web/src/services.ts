@@ -56,11 +56,15 @@ export function getLiveUrl(path: string) {
 }
 
 export async function startVlcPlayback(source: string) {
-  const response = await fetch(`${services.vlcUrl}/api/vlc/play`, {
+  const response = await fetch(`${services.vlcUrl || ''}/api/vlc/play`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ source }),
   })
+  const contentType = response.headers.get('content-type') ?? ''
+  if (!contentType.includes('application/json')) {
+    throw new Error(`Playback server returned ${response.status} instead of JSON`)
+  }
   const result = await response.json() as { stream?: string; error?: string }
   if (!response.ok || !result.stream) throw new Error(result.error ?? 'VLC could not start playback')
   return `${services.vlcUrl}${result.stream}`
