@@ -15,7 +15,3 @@ services:
         value: "localhost"
       - key: HASHEOUS_API_ENABLED
         value: "true"
-    disk:
-      name: romm-data
-      mountPath: /var/lib/mysql
-      sizeGB: 10
