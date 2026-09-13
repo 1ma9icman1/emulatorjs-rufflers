@@ -54,12 +54,13 @@ const launchVlc = (source) => {
   cleanStream()
   const segmentPattern = join(streamRoot, 'segment-#####.ts')
   const sout = `#transcode{vcodec=h264,vb=2500,acodec=mp4a,ab=128,channels=2,samplerate=44100}:std{access=livehttp{seglen=6,delsegs=false,numsegs=0,index=${playlistPath},index-url=segment-#####.ts},mux=ts{use-key-frames},dst=${segmentPattern}}`
-  vlcProcess = spawn(vlcBinary, ['--intf', 'dummy', '--no-video-title-show', '--network-caching', '1000', source, '--sout', sout, '--sout-keep'], { windowsHide: true })
+  vlcProcess = spawn(vlcBinary, ['--intf', 'dummy', '--no-video-title-show', '--network-caching', '5000', source, '--sout', sout, '--sout-keep'], { windowsHide: true })
+  vlcProcess.stderr?.on('data', (data) => writeFileSync(join(streamRoot, 'vlc.log'), data, { flag: 'a' }))
   vlcProcess.on('error', (error) => writeFileSync(join(streamRoot, 'error.txt'), error.message))
   vlcProcess.on('exit', () => { vlcProcess = undefined })
 }
 
-const waitForPlaylist = async (timeoutMs = 5000) => {
+const waitForPlaylist = async (timeoutMs = 30000) => {
   const startedAt = Date.now()
   while (!existsSync(playlistPath) && Date.now() - startedAt < timeoutMs) {
     await new Promise((resolve) => setTimeout(resolve, 100))
@@ -143,7 +144,7 @@ createServer(async (request, response) => {
   }
   if (url.pathname.startsWith('/stream/')) {
     const file = resolve(streamRoot, url.pathname.replace('/stream/', ''))
-    if (!file.startsWith(normalize(streamRoot + '\\')) || !existsSync(file)) { send(response, 404, { error: 'Stream segment not ready' }); return }
+    if (!file.startsWith(normalize(streamRoot + sep)) || !existsSync(file)) { send(response, 404, { error: 'Stream segment not ready' }); return }
     response.writeHead(200, { ...headers(contentType(file)), 'Content-Length': statSync(file).size })
     createReadStream(file).pipe(response)
     return

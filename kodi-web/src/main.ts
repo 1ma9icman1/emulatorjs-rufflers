@@ -27,19 +27,26 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `<div class="app-she
     <input id="local-file" type="file" accept="video/*,.mkv,.avi,.mov,.mp4,.webm" hidden>
     <section class="hero" aria-label="ma9ic movie launcher"><img class="hero-drive" src="${neonDriveInImage}" alt="Vintage neon drive-in sign"><div class="hero-shade"></div><div class="hero-content"><span class="eyebrow">Movie night</span><h1>ma9ic</h1><p class="hero-description">Load a movie and settle in under the lights.</p><div class="hero-actions"><button class="primary-action" id="watch-featured" type="button">${icon('play')} Load movie</button></div></div></section>
   </main>
-  <dialog id="video-dialog"><div class="video-shell"><button class="video-back" id="back-video" type="button">← Back</button><button class="video-close" id="close-video" aria-label="Close video">×</button><video id="video-player" controls playsinline loop></video><button class="video-sound" id="video-sound" type="button">Enable sound</button><p id="video-status">Preparing playback...</p></div></dialog>
+  <dialog id="video-dialog"><div class="video-shell"><button class="video-back" id="back-video" type="button">← Back</button><button class="video-close" id="close-video" aria-label="Close video">×</button><video id="video-player" controls playsinline loop></video><progress id="video-loading" max="100" value="0" aria-label="Loading video"></progress><button class="video-sound" id="video-sound" type="button">Enable sound</button><p id="video-status">Preparing playback...</p></div></dialog>
 </div>`
 
 const watchFeatured = document.querySelector<HTMLButtonElement>('#watch-featured')!
 const videoDialog = document.querySelector<HTMLDialogElement>('#video-dialog')!
 const videoPlayer = document.querySelector<HTMLVideoElement>('#video-player')!
 const videoStatus = document.querySelector<HTMLParagraphElement>('#video-status')!
+const videoLoading = document.querySelector<HTMLProgressElement>('#video-loading')!
 const videoSound = document.querySelector<HTMLButtonElement>('#video-sound')!
 const backVideo = document.querySelector<HTMLButtonElement>('#back-video')!
 const localFileInput = document.querySelector<HTMLInputElement>('#local-file')!
 const loadLocal = document.querySelector<HTMLButtonElement>('#load-local')!
 let hls: Hls | undefined
 let localObjectUrl = ''
+
+const showVideoLoading = (loading: boolean, progress = 0) => {
+  videoLoading.hidden = !loading
+  videoLoading.value = progress
+}
+showVideoLoading(false)
 
 const enableVideoAudio = () => {
   videoPlayer.muted = false
@@ -63,6 +70,7 @@ videoPlayer.addEventListener('click', () => {
 const openVideo = async (source: string) => {
   videoDialog.showModal()
   videoStatus.textContent = 'Starting VLC transcoder...'
+  showVideoLoading(true)
   enableVideoAudio()
   try {
     if (/\.mp4$/i.test(source) && !/^https?:\/\//i.test(source)) {
@@ -73,6 +81,7 @@ const openVideo = async (source: string) => {
       videoPlayer.muted = false
       videoPlayer.volume = 1
       videoSound.hidden = true
+      showVideoLoading(false)
       return
     }
     const streamSource = source === googleDriveVideo
@@ -84,10 +93,13 @@ const openVideo = async (source: string) => {
       hls = new Hls({ enableWorker: true, startPosition: -1 })
       hls.loadSource(streamUrl)
       hls.attachMedia(videoPlayer)
+      hls.on(Hls.Events.FRAG_LOADING, () => showVideoLoading(true))
+      hls.on(Hls.Events.FRAG_LOADED, () => showVideoLoading(false))
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         enableVideoAudio()
         void videoPlayer.play().then(() => {
           videoSound.hidden = true
+          showVideoLoading(false)
           videoStatus.textContent = 'Playing through VLC'
         }).catch(() => { videoStatus.textContent = 'Click Enable sound to start audio' })
       })
@@ -95,8 +107,10 @@ const openVideo = async (source: string) => {
       videoPlayer.src = streamUrl
       videoStatus.textContent = 'Playing through VLC'
       void videoPlayer.play()
+      showVideoLoading(false)
     }
   } catch (error) {
+    showVideoLoading(false)
     videoStatus.textContent = error instanceof Error ? error.message : 'VLC playback unavailable'
   }
 }
