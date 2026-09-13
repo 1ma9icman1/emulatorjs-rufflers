@@ -1,0 +1,59 @@
+﻿# RomM Configuration for NES and SNES with Libretro / RetroArch Emulation
+filesystem:
+  skip_hash_calculation: false
+  skip_title_id_extraction: false
+  structure:
+    default: 'roms/{platform}/{game}'
+    nes:
+      - 'roms/{platform}/{game}'
+      - 'roms/{platform}/{category}/{game}'
+    snes:
+      - 'roms/{platform}/{game}'
+      - 'roms/{platform}/{category}/{game}'
+
+scan:
+  priority:
+    metadata:
+      - hasheous
+      - ss
+      - igdb
+      - moby
+      - ra
+      - launchbox
+      - gamelist
+    artwork:
+      - libretro
+      - ss
+      - igdb
+      - moby
+      - ra
+      - launchbox
+    region:
+      - us
+      - wor
+      - eu
+      - jp
+    region_mode: prefer_rom_tags
+    language:
+      - en
+  media:
+    - box2d
+    - box3d
+    - screenshot
+    - title_screen
+    - video
+
+emulatorjs:
+  debug: false
+  cache_limit: null
+  disable_batch_bootup: false
+  disable_auto_unload: false
+  auto_save_sync: true
+  default_cores:
+    nes: fceumm
+    snes: snes9x
+  settings:
+    snes9x:
+      snes9x_region: auto
+    default:
+      fps: hide

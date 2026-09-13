@@ -1,0 +1,35 @@
+﻿# Archives and large media/dump files
+*.zip
+*.rar
+*.part*.rar
+*.7z
+*.tar
+*.gz
+*.iso
+*.chd
+*.torrent
+*.mp4
+
+# Video Snaps and Large Dumps
+*Video Snaps*
+*Video Snaps*/**
+
+# Node & Python
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment and sensitive keys
+.env.local
+.env.*.local
+
+# OS files
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# RomM dynamic volume data
+romm/
+RadioCore/
