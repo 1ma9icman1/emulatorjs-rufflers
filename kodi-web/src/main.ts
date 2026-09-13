@@ -87,6 +87,12 @@ toolbarLoadOnline.textContent = 'Load online'
 loadLocal.insertAdjacentElement('afterend', toolbarLoadOnline)
 toolbarLoadOnline.addEventListener('click', () => playDrive.click())
 
+const enableVideoAudio = () => {
+  videoPlayer.muted = false
+  videoPlayer.volume = 1
+  videoPlayer.controls = true
+}
+
 document.querySelectorAll<HTMLButtonElement>('.nav-item').forEach((button) => button.addEventListener('click', () => {
   document.querySelectorAll('.nav-item').forEach((item) => item.classList.remove('active'))
   button.classList.add('active')
@@ -119,6 +125,7 @@ playFeatured.addEventListener('click', () => { document.querySelector('#track-ti
 const openVideo = async (source: string) => {
   videoDialog.showModal()
   videoStatus.textContent = 'Starting VLC transcoder...'
+  enableVideoAudio()
   try {
     const streamUrl = await startVlcPlayback(source)
     if (Hls.isSupported()) {
@@ -155,7 +162,7 @@ playDrive.addEventListener('click', () => {
   drivePlayer.hidden = false
   drivePlayer.src = previewUrl
   videoDialog.showModal()
-  videoStatus.textContent = 'Loading Google Drive video. The file must be shared with anyone who has the link.'
+  videoStatus.textContent = 'Loading Google Drive video. If it starts muted, click the speaker icon in the Drive player.'
 })
 loadLocal.addEventListener('click', () => localFileInput.click())
 localFileInput.addEventListener('change', () => {
@@ -165,6 +172,7 @@ localFileInput.addEventListener('change', () => {
   if (localObjectUrl) URL.revokeObjectURL(localObjectUrl)
   localObjectUrl = URL.createObjectURL(file)
   videoDialog.showModal()
+  enableVideoAudio()
   videoPlayer.src = localObjectUrl
   videoPlayer.load()
   videoStatus.textContent = `Playing local file: ${file.name}`
