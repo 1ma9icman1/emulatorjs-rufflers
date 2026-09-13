@@ -69,10 +69,21 @@ videoPlayer.addEventListener('click', () => {
 
 const openVideo = async (source: string) => {
   videoDialog.showModal()
-  videoStatus.textContent = 'Starting VLC transcoder...'
+  videoStatus.textContent = source === googleDriveVideo ? 'Loading movie...' : 'Starting VLC transcoder...'
   showVideoLoading(true)
   enableVideoAudio()
   try {
+    if (source === googleDriveVideo) {
+      videoPlayer.src = `${services.vlcUrl}/api/vlc/proxy?source=${encodeURIComponent(source)}`
+      videoPlayer.load()
+      videoStatus.textContent = 'Loading movie'
+      await videoPlayer.play()
+      videoPlayer.muted = false
+      videoPlayer.volume = 1
+      videoSound.hidden = true
+      showVideoLoading(false)
+      return
+    }
     if (/\.mp4$/i.test(source) && !/^https?:\/\//i.test(source)) {
       videoPlayer.src = `${services.vlcUrl}/api/vlc/file?source=${encodeURIComponent(source)}`
       videoPlayer.load()
