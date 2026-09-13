@@ -143,13 +143,19 @@ watchFeatured.addEventListener('click', () => {
 })
 document.querySelector<HTMLButtonElement>('#close-video')!.addEventListener('click', () => { hls?.destroy(); videoPlayer.pause(); videoPlayer.removeAttribute('src'); videoPlayer.hidden = false; drivePlayer.hidden = true; drivePlayer.src = ''; videoDialog.close() })
 playDrive.addEventListener('click', () => {
+  const entered = window.prompt('Which Google Drive video should I play? Paste its sharing URL or file ID.', googleDrivePreview)
+  if (!entered) return
+  const fileId = entered.match(/(?:\/d\/|id=)([-\w]+)/)?.[1] ?? entered.trim()
+  const previewUrl = fileId.startsWith('http') && fileId.includes('/preview')
+    ? fileId
+    : `https://drive.google.com/file/d/${fileId}/preview`
   hls?.destroy()
   videoPlayer.pause()
   videoPlayer.hidden = true
   drivePlayer.hidden = false
-  drivePlayer.src = googleDrivePreview
+  drivePlayer.src = previewUrl
   videoDialog.showModal()
-  videoStatus.textContent = 'Playing Google Drive video'
+  videoStatus.textContent = 'Loading Google Drive video. The file must be shared with anyone who has the link.'
 })
 loadLocal.addEventListener('click', () => localFileInput.click())
 localFileInput.addEventListener('change', () => {
