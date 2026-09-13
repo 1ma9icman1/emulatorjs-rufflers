@@ -22,7 +22,7 @@ export const services: RomMConfig = {
   rommUrl: import.meta.env.VITE_ROMM_URL ?? 'http://localhost:8080',
   jellyfinUrl: import.meta.env.VITE_JELLYFIN_URL ?? '',
   tvUrl: import.meta.env.VITE_TV_URL ?? '',
-  vlcUrl: import.meta.env.VITE_VLC_URL ?? 'http://127.0.0.1:8090',
+  vlcUrl: import.meta.env.VITE_VLC_URL ?? window.location.origin,
   featuredVideo: import.meta.env.VITE_FEATURED_VIDEO ?? '',
 }
 

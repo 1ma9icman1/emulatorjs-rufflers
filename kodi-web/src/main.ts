@@ -19,11 +19,12 @@ const icon = (name: string) => {
 }
 
 const neonDriveInImage = '/2026-09-13%2017_40_21-Roblox.png'
-const featuredVideoSource = services.featuredVideo || 'nes/video/10-Yard Fight (USA, Europe).mp4'
+const googleDriveVideo = 'https://drive.google.com/uc?export=download&id=1FDjrUOgEn57U4cBSpwDtmamoFNBaa1rf'
+const featuredVideoSource = services.featuredVideo || `${services.vlcUrl}/api/vlc/proxy?source=${encodeURIComponent(googleDriveVideo)}`
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `<div class="app-shell">
   <main class="main-content">
-    <header class="topbar"><span class="brand-mark">K</span><strong>MA9IC</strong><input id="local-file" type="file" accept="video/*,.mkv,.avi,.mov,.mp4,.webm" hidden><button class="load-local" id="load-local" type="button">${icon('plus')} Load movie</button></header>
+    <input id="local-file" type="file" accept="video/*,.mkv,.avi,.mov,.mp4,.webm" hidden>
     <section class="hero" aria-label="ma9ic movie launcher"><img class="hero-drive" src="${neonDriveInImage}" alt="Vintage neon drive-in sign"><div class="hero-shade"></div><div class="hero-content"><span class="eyebrow">Movie night</span><h1>ma9ic</h1><p class="hero-description">Load a movie and settle in under the lights.</p><div class="hero-actions"><button class="primary-action" id="watch-featured" type="button">${icon('play')} Load movie</button></div></div></section>
   </main>
   <dialog id="video-dialog"><div class="video-shell"><button class="video-back" id="back-video" type="button">← Back</button><button class="video-close" id="close-video" aria-label="Close video">×</button><video id="video-player" controls playsinline loop></video><button class="video-sound" id="video-sound" type="button">Enable sound</button><p id="video-status">Preparing playback...</p></div></dialog>

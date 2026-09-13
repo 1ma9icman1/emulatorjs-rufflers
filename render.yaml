@@ -1,17 +1,11 @@
 services:
   - type: web
-    name: ma9ic-romm
+    name: ma9ic-drive-in
     runtime: docker
     plan: free
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
+    dockerfilePath: ./kodi-web/Dockerfile
+    dockerContext: ./kodi-web
     healthCheckPath: /
     envVars:
       - key: PORT
-        value: "8080"
-      - key: ROMM_AUTH_SECRET_KEY
-        generateValue: true
-      - key: DB_HOST
-        value: "localhost"
-      - key: HASHEOUS_API_ENABLED
-        value: "true"
+        value: "10000"
