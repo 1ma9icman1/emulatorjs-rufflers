@@ -1,5 +1,6 @@
 import './style.css'
-import { getRomMLibrary, getRomMPlayerUrl, getRomMStatus, services, type RomMGame } from './services'
+import Hls from 'hls.js'
+import { getRomMLibrary, getRomMPlayerUrl, getRomMStatus, services, startVlcPlayback, type RomMGame } from './services'
 
 type MediaItem = { id?: number; title: string; meta: string; image: string; kind: string }
 
@@ -50,18 +51,27 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `<div class="app-she
     <div class="sidebar-foot"><span class="status-dot"></span><span id="connection-status">Demo library</span><button aria-label="More options">${icon('more')}</button></div>
   </aside>
   <main class="main-content">
-    <header class="topbar"><button class="mobile-menu" aria-label="Open menu">${icon('more')}</button><div class="breadcrumb"><span>Library</span><strong>/</strong><span id="view-label">Home</span></div><label class="search-box">${icon('search')}<input id="search" placeholder="Search your library" type="search"><kbd>⌘ K</kbd></label><button class="avatar" aria-label="Profile">JD</button></header>
-    <section class="hero" aria-label="Featured title"><div class="hero-image"></div><div class="hero-content"><span class="eyebrow">Featured this week</span><h1>Interstellar</h1><p class="hero-meta">2014  <i></i>  PG-13  <i></i>  2h 49m</p><p class="hero-description">A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.</p><div class="hero-actions"><button class="primary-action" id="play-featured">${icon('play')} Play now</button><button class="circle-action" aria-label="Add to favorites">${icon('plus')}</button><button class="circle-action" aria-label="More options">${icon('more')}</button></div></div><div class="hero-index"><strong>01</strong><span>/ 04</span></div></section>
+    <header class="topbar"><button class="mobile-menu" aria-label="Open menu">${icon('more')}</button><div class="breadcrumb"><span>Library</span><strong>/</strong><span id="view-label">Home</span></div><label class="search-box">${icon('search')}<input id="search" placeholder="Search your library" type="search"><kbd>⌘ K</kbd></label><input id="local-file" type="file" accept="video/*,.mkv,.avi,.mov,.mp4,.webm" hidden><button class="load-local" id="load-local" type="button">${icon('plus')} Load local file</button><button class="avatar" aria-label="Profile">JD</button></header>
+    <section class="hero" aria-label="Featured title"><div class="hero-image"></div><div class="hero-content"><span class="eyebrow">Featured this week</span><h1>Interstellar</h1><p class="hero-meta">2014  <i></i>  PG-13  <i></i>  2h 49m</p><p class="hero-description">A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.</p><div class="hero-actions"><button class="primary-action" id="play-featured">${icon('play')} Play now</button><button class="video-action" id="watch-featured">Watch video</button><button class="circle-action" aria-label="Add to favorites">${icon('plus')}</button><button class="circle-action" aria-label="More options">${icon('more')}</button></div></div><div class="hero-index"><strong>01</strong><span>/ 04</span></div></section>
     <section class="content-section continue-section"><div class="section-heading"><div><span class="section-kicker">Pick up where you left off</span><h2>Continue watching</h2></div><button class="text-button">View all ${icon('play')}</button></div><div class="continue-row"><div class="continue-card"><div class="continue-thumb"><img src="${media[0].image}" alt="The Last of Us"><button class="mini-play">${icon('play')}</button></div><div class="continue-info"><div class="progress-line"><span style="width:64%"></span></div><h3>The Last of Us</h3><p>S2 E7  •  36 min left</p></div></div><div class="continue-card"><div class="continue-thumb"><img src="${media[3].image}" alt="Arcane"><button class="mini-play">${icon('play')}</button></div><div class="continue-info"><div class="progress-line"><span style="width:28%"></span></div><h3>Arcane</h3><p>S2 E3  •  42 min left</p></div></div><div class="continue-card"><div class="continue-thumb"><img src="${media[4].image}" alt="The Bear"><button class="mini-play">${icon('play')}</button></div><div class="continue-info"><div class="progress-line"><span style="width:81%"></span></div><h3>The Bear</h3><p>S3 E2  •  11 min left</p></div></div></div></section>
     <section class="content-section library-section"><div class="section-heading"><div><span class="section-kicker">Recently added</span><h2>From your library</h2></div><div class="section-tabs"><button class="tab active">All</button><button class="tab">Movies</button><button class="tab">Shows</button></div></div><div class="media-grid">${media.map(card).join('')}</div></section>
   </main>
   <footer class="player-bar"><div class="now-playing"><div class="album-art"><img src="${media[5].image}" alt="Nocturne Radio"></div><div><strong id="track-title">Midnight City</strong><span>M83  •  Hurry Up, We're Dreaming</span></div><button aria-label="Like track">${icon('heart')}</button></div><div class="player-controls"><div class="transport"><button aria-label="Previous">◀◀</button><button class="main-play" id="player-toggle" aria-label="Pause">Ⅱ</button><button aria-label="Next">▶▶</button></div><div class="track-progress"><span>1:24</span><div><i></i></div><span>4:03</span></div></div><div class="player-tools">${icon('volume')}<div class="volume-line"><i></i></div>${icon('more')}</div></footer>
+  <dialog id="video-dialog"><div class="video-shell"><button class="video-close" id="close-video" aria-label="Close video">×</button><video id="video-player" controls playsinline></video><p id="video-status">Preparing VLC playback...</p></div></dialog>
 </div>`
 
 const search = document.querySelector<HTMLInputElement>('#search')!
 const viewLabel = document.querySelector('#view-label')!
 const playerToggle = document.querySelector<HTMLButtonElement>('#player-toggle')!
 const playFeatured = document.querySelector<HTMLButtonElement>('#play-featured')!
+const watchFeatured = document.querySelector<HTMLButtonElement>('#watch-featured')!
+const videoDialog = document.querySelector<HTMLDialogElement>('#video-dialog')!
+const videoPlayer = document.querySelector<HTMLVideoElement>('#video-player')!
+const videoStatus = document.querySelector<HTMLParagraphElement>('#video-status')!
+const localFileInput = document.querySelector<HTMLInputElement>('#local-file')!
+const loadLocal = document.querySelector<HTMLButtonElement>('#load-local')!
+let hls: Hls | undefined
+let localObjectUrl = ''
 
 document.querySelectorAll<HTMLButtonElement>('.nav-item').forEach((button) => button.addEventListener('click', () => {
   document.querySelectorAll('.nav-item').forEach((item) => item.classList.remove('active'))
@@ -91,6 +101,46 @@ const togglePlay = () => {
 }
 playerToggle.addEventListener('click', togglePlay)
 playFeatured.addEventListener('click', () => { document.querySelector('#track-title')!.textContent = 'Cornfield Chase'; playerToggle.textContent = 'Ⅱ' })
+
+const openVideo = async (source: string) => {
+  videoDialog.showModal()
+  videoStatus.textContent = 'Starting VLC transcoder...'
+  try {
+    const streamUrl = await startVlcPlayback(source)
+    if (Hls.isSupported()) {
+      hls?.destroy()
+      hls = new Hls({ enableWorker: true })
+      hls.loadSource(streamUrl)
+      hls.attachMedia(videoPlayer)
+      hls.on(Hls.Events.MANIFEST_PARSED, () => { videoStatus.textContent = 'Playing through VLC'; void videoPlayer.play() })
+    } else {
+      videoPlayer.src = streamUrl
+      videoStatus.textContent = 'Playing through VLC'
+      void videoPlayer.play()
+    }
+  } catch (error) {
+    videoStatus.textContent = error instanceof Error ? error.message : 'VLC playback unavailable'
+  }
+}
+
+watchFeatured.addEventListener('click', () => {
+  if (services.featuredVideo) void openVideo(services.featuredVideo)
+  else { videoDialog.showModal(); videoStatus.textContent = 'Set VITE_FEATURED_VIDEO to a file inside VIDEO_ROOT or an approved stream.' }
+})
+document.querySelector<HTMLButtonElement>('#close-video')!.addEventListener('click', () => { hls?.destroy(); videoPlayer.pause(); videoPlayer.removeAttribute('src'); videoDialog.close() })
+loadLocal.addEventListener('click', () => localFileInput.click())
+localFileInput.addEventListener('change', () => {
+  const file = localFileInput.files?.[0]
+  if (!file) return
+  hls?.destroy()
+  if (localObjectUrl) URL.revokeObjectURL(localObjectUrl)
+  localObjectUrl = URL.createObjectURL(file)
+  videoDialog.showModal()
+  videoPlayer.src = localObjectUrl
+  videoPlayer.load()
+  videoStatus.textContent = `Playing local file: ${file.name}`
+  void videoPlayer.play()
+})
 
 const rommStatus = document.querySelector<HTMLSpanElement>('#connection-status')!
 const libraryGrid = document.querySelector<HTMLDivElement>('.media-grid')!

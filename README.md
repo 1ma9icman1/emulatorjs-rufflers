@@ -55,3 +55,23 @@ Open `http://127.0.0.1:5173/`. The dashboard uses RomM at `http://localhost:8080
 by default, loads the real ROM library when authenticated, and falls back to its
 demo catalog while RomM is offline. Copy `kodi-web/.env.example` to
 `kodi-web/.env.local` to point it at another RomM, Jellyfin, or legal IPTV server.
+
+### VLC video playback
+
+The dashboard uses VLC as the native playback and transcoding engine, then
+plays the generated HLS stream in the browser. Install VLC for Windows or
+build it from the [VideoLAN VLC source](https://github.com/videolan/vlc), and
+make sure `vlc.exe` is on `PATH`. If it is installed elsewhere, set
+`VLC_PATH` when starting the bridge:
+
+```powershell
+$env:VLC_PATH = 'C:\Program Files\VideoLAN\VLC\vlc.exe'
+$env:VIDEO_ROOT = 'C:\ai\nes\library\media'
+Set-Location kodi-web
+npm run server
+```
+
+Run the Vite frontend in a second terminal. Set `VITE_FEATURED_VIDEO` in
+`kodi-web/.env.local` to a file inside `VIDEO_ROOT` (or an approved HTTP(S)
+stream), then use **Watch video** in the dashboard. VLC produces the HLS
+segments at runtime; no media files are copied into Git.

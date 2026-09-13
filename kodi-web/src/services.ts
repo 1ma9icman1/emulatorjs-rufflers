@@ -2,6 +2,8 @@ export type RomMConfig = {
   rommUrl: string
   jellyfinUrl: string
   tvUrl: string
+  vlcUrl: string
+  featuredVideo: string
 }
 
 export type RomMGame = {
@@ -20,6 +22,8 @@ export const services: RomMConfig = {
   rommUrl: import.meta.env.VITE_ROMM_URL ?? 'http://localhost:8080',
   jellyfinUrl: import.meta.env.VITE_JELLYFIN_URL ?? '',
   tvUrl: import.meta.env.VITE_TV_URL ?? '',
+  vlcUrl: import.meta.env.VITE_VLC_URL ?? 'http://127.0.0.1:8090',
+  featuredVideo: import.meta.env.VITE_FEATURED_VIDEO ?? '',
 }
 
 const api = async <T>(path: string): Promise<T> => {
@@ -49,4 +53,15 @@ export function getVideoUrl(path: string) {
 export function getLiveUrl(path: string) {
   const base = services.tvUrl.replace(/\/$/, '')
   return base ? `${base}${path.startsWith('/') ? path : `/${path}`}` : path
+}
+
+export async function startVlcPlayback(source: string) {
+  const response = await fetch(`${services.vlcUrl}/api/vlc/play`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ source }),
+  })
+  const result = await response.json() as { stream?: string; error?: string }
+  if (!response.ok || !result.stream) throw new Error(result.error ?? 'VLC could not start playback')
+  return `${services.vlcUrl}${result.stream}`
 }
