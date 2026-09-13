@@ -43,11 +43,15 @@ if [ -z "$ROMM_AUTH_SECRET_KEY" ]; then
     export ROMM_AUTH_SECRET_KEY="b43f24ba5c3bf9ff1a53642da6fa2c9a1e675d4250d4f21414a9a8a8d18cf098"
 fi
 
-# Run standard RomM entrypoint
-if [ -f "/entrypoint.sh" ]; then
-    exec /entrypoint.sh "$@"
-elif [ -f "/app/entrypoint.sh" ]; then
-    exec /app/entrypoint.sh "$@"
+# Execute original RomM entrypoint with /init
+if [ -f "/docker-entrypoint.orig.sh" ]; then
+    if [ $# -eq 0 ]; then
+        exec /docker-entrypoint.orig.sh /init
+    else
+        exec /docker-entrypoint.orig.sh "$@"
+    fi
+elif [ -f "/init" ]; then
+    exec /init "$@"
 else
     exec "$@"
 fi
