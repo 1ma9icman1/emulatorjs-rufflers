@@ -38,3 +38,20 @@ Access RomM at: **http://localhost:8080**
 
 ### 3. Deploy to Cloud (Render / Railway / Docker)
 Use the included `Dockerfile` pointing to port `8080`.
+
+## Kodi Web dashboard
+
+The `kodi-web` folder contains a browser dashboard that connects to RomM's API
+and EmulatorJS player. Start Docker Desktop first, then run:
+
+```powershell
+.\start-romm.ps1
+Set-Location kodi-web
+npm install
+npm run dev -- --host 127.0.0.1
+```
+
+Open `http://127.0.0.1:5173/`. The dashboard uses RomM at `http://localhost:8080`
+by default, loads the real ROM library when authenticated, and falls back to its
+demo catalog while RomM is offline. Copy `kodi-web/.env.example` to
+`kodi-web/.env.local` to point it at another RomM, Jellyfin, or legal IPTV server.

@@ -14,13 +14,17 @@ if (-not (Test-Path "$baseDir\library\roms\nes")) {
 
 # Check docker availability
 $dockerRunning = docker info 2>$null
-if (-not $dockerRunning) {
+if ($LASTEXITCODE -ne 0) {
     Write-Host "Error: Docker daemon is not running. Please start Docker Desktop first." -ForegroundColor Red
     exit 1
 }
 
 Write-Host "Starting Docker containers..." -ForegroundColor Green
 docker compose up -d
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Error: Docker Compose could not start RomM." -ForegroundColor Red
+    exit 1
+}
 
 Write-Host ""
 Write-Host "=================================================" -ForegroundColor Cyan
