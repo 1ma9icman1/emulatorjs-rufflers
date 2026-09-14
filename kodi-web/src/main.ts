@@ -18,7 +18,7 @@ const icon = (name: string) => {
   return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[name] ?? paths.more}</svg>`
 }
 
-const neonDriveInImage = '/2026-09-13%2017_40_21-Roblox.png'
+const neonDriveInImage = '/2026-09-13%2017_40_21-Roblox.png?v=2'
 const googleDriveVideo = 'https://drive.google.com/uc?export=download&id=1FDjrUOgEn57U4cBSpwDtmamoFNBaa1rf'
 const featuredVideoSource = services.featuredVideo || googleDriveVideo
 
