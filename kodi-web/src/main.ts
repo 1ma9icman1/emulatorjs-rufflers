@@ -37,7 +37,6 @@ const videoLoading = document.querySelector<HTMLProgressElement>('#video-loading
 const videoSound = document.querySelector<HTMLButtonElement>('#video-sound')!
 const backVideo = document.querySelector<HTMLButtonElement>('#back-video')!
 let hls: Hls | undefined
-let localObjectUrl = ''
 
 const showVideoLoading = (loading: boolean, progress = 0) => {
   videoLoading.hidden = !loading
