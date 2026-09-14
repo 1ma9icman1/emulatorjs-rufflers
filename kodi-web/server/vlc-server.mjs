@@ -150,7 +150,7 @@ createServer(async (request, response) => {
     return
   }
   if (request.method === 'GET') {
-    const requested = url.pathname === '/' ? '/index.html' : url.pathname
+    const requested = url.pathname === '/' ? '/index.html' : decodeURIComponent(url.pathname)
     const file = resolve(webRoot, `.${requested}`)
     if (file.startsWith(normalize(webRoot + sep)) && existsSync(file) && statSync(file).isFile()) {
       response.writeHead(200, { ...headers(webContentType(file)), 'Content-Length': statSync(file).size })
