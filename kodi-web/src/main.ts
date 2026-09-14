@@ -18,7 +18,7 @@ const icon = (name: string) => {
   return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[name] ?? paths.more}</svg>`
 }
 
-const googleDriveVideo = 'https://drive.google.com/uc?export=download&id=1FDjrUOgEn57U4cBSpwDtmamoFNBaa1rf'
+const googleDriveVideo = 'https://drive.google.com/uc?export=download&id=1pLMMsYIfSO4ZSrg5L7ABOU8i5N1x6nRd'
 const featuredVideoSource = services.featuredVideo || googleDriveVideo
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `<div class="app-shell">
