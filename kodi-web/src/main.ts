@@ -24,7 +24,6 @@ const featuredVideoSource = services.featuredVideo || googleDriveVideo
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `<div class="app-shell">
   <main class="main-content">
-    <input id="local-file" type="file" accept="video/*,.mkv,.avi,.mov,.mp4,.webm" hidden>
     <section class="hero" aria-label="ma9ic movie launcher"><img class="hero-drive" src="${neonDriveInImage}" alt="Vintage neon drive-in sign"><div class="hero-shade"></div><div class="hero-content"><span class="eyebrow">Movie night</span><h1>ma9ic</h1><p class="hero-description">Load a movie and settle in under the lights.</p><div class="hero-actions"><button class="primary-action" id="watch-featured" type="button">${icon('play')} Load movie</button></div></div></section>
   </main>
   <dialog id="video-dialog"><div class="video-shell"><button class="video-back" id="back-video" type="button">← Back</button><button class="video-close" id="close-video" aria-label="Close video">×</button><video id="video-player" controls playsinline loop></video><progress id="video-loading" max="100" value="0" aria-label="Loading video"></progress><button class="video-sound" id="video-sound" type="button">Enable sound</button><p id="video-status">Preparing playback...</p></div></dialog>
@@ -37,8 +36,6 @@ const videoStatus = document.querySelector<HTMLParagraphElement>('#video-status'
 const videoLoading = document.querySelector<HTMLProgressElement>('#video-loading')!
 const videoSound = document.querySelector<HTMLButtonElement>('#video-sound')!
 const backVideo = document.querySelector<HTMLButtonElement>('#back-video')!
-const localFileInput = document.querySelector<HTMLInputElement>('#local-file')!
-const loadLocal = document.querySelector<HTMLButtonElement>('#load-local')!
 let hls: Hls | undefined
 let localObjectUrl = ''
 
@@ -132,18 +129,5 @@ watchFeatured.addEventListener('click', () => {
 const closeVideo = () => { hls?.destroy(); videoPlayer.pause(); videoPlayer.removeAttribute('src'); videoDialog.close() }
 document.querySelector<HTMLButtonElement>('#close-video')!.addEventListener('click', closeVideo)
 backVideo.addEventListener('click', closeVideo)
-loadLocal.addEventListener('click', () => localFileInput.click())
-localFileInput.addEventListener('change', () => {
-  const file = localFileInput.files?.[0]
-  if (!file) return
-  hls?.destroy()
-  if (localObjectUrl) URL.revokeObjectURL(localObjectUrl)
-  localObjectUrl = URL.createObjectURL(file)
-  videoDialog.showModal()
-  enableVideoAudio()
-  videoPlayer.src = localObjectUrl
-  videoPlayer.load()
-  videoStatus.textContent = `Playing local file: ${file.name}`
-  void videoPlayer.play()
-})
+document.querySelector<HTMLButtonElement>('#close-video')!.addEventListener('click', closeVideo)
 
